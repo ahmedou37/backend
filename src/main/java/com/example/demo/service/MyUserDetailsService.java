@@ -17,14 +17,14 @@ public class MyUserDetailsService implements UserDetailsService {
     UserRepositry userRepositry;
 
     @Override
-    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {//Spring Security calls this whenever someone tries to log in.
+    public UserDetails loadUserByUsername(String name) throws UsernameNotFoundException {
         
         User user = userRepositry.findByName(name);
         
         if (user==null){
             throw new UsernameNotFoundException("user not found");
         }
-        return new MyUserDetails(user);//If the user exists, wraps it into a MyUserDetails object.
+        return new MyUserDetails(user);
         
     }
 

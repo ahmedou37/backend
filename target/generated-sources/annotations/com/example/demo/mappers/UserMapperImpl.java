@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2025-12-31T20:08:23+0000",
+    date = "2025-12-31T20:17:00+0000",
     comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.44.0.v20251118-1623, environment: Java 21.0.9 (Eclipse Adoptium)"
 )
 @Component
@@ -24,11 +24,11 @@ public class UserMapperImpl implements UserMapper {
 
         UserDTO userDTO = new UserDTO();
 
-        userDTO.setEmail( user.getEmail() );
         userDTO.setId( user.getId() );
-        userDTO.setImageName( user.getImageName() );
         userDTO.setName( user.getName() );
         userDTO.setRole( user.getRole() );
+        userDTO.setEmail( user.getEmail() );
+        userDTO.setImageName( user.getImageName() );
         List<Task> list = user.getTasks();
         if ( list != null ) {
             userDTO.setTasks( new ArrayList<Task>( list ) );
@@ -45,11 +45,11 @@ public class UserMapperImpl implements UserMapper {
 
         User user = new User();
 
-        user.setEmail( userDTO.getEmail() );
         user.setId( userDTO.getId() );
-        user.setImageName( userDTO.getImageName() );
         user.setName( userDTO.getName() );
         user.setRole( userDTO.getRole() );
+        user.setEmail( userDTO.getEmail() );
+        user.setImageName( userDTO.getImageName() );
         List<Task> list = userDTO.getTasks();
         if ( list != null ) {
             user.setTasks( new ArrayList<Task>( list ) );

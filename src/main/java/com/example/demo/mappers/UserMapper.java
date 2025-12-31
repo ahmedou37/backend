@@ -11,7 +11,6 @@ import com.example.demo.model.UserDTO;
 @Mapper(componentModel = "spring")
 public interface UserMapper {
 
-    // @Mapping(target = "password", ignore = true)
     UserDTO toDto(User user);
 
     User toEntity(UserDTO userDTO);

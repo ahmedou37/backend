@@ -31,7 +31,6 @@ public class JWTService {
     Map<String, Object> claims = new HashMap<>();
 
 
-    // Extract role names from authorities and add to claims
         List<String> roles = authorities.stream()
             .map(GrantedAuthority::getAuthority)
             .collect(Collectors.toList());
@@ -48,9 +47,9 @@ public class JWTService {
         String token= Jwts.builder()
             .setClaims(claims)
             .setSubject(username)
-            .setIssuedAt(new Date(issuedAtTime))//Stores the exact time the token was created.
-            .setExpiration(new Date(expirationTime)) //After this date, the token is considered invalid → 401 Unauthorized
-            .signWith(getKey())//add a key , so only your server can create valid tokens (has the key)
+            .setIssuedAt(new Date(issuedAtTime))
+            .setExpiration(new Date(expirationTime)) 
+            .signWith(getKey())
             .compact();
 
         String refreshToken= Jwts.builder()
@@ -77,13 +76,12 @@ public class JWTService {
     
     public String extractUserName(String token) {
         Claims claims = extractAllClaims(token);
-        return claims.getSubject();// extractClaim(token, Claims::getSubject/*claims -> claims.getSubject()*/);
+        return claims.getSubject();
     }
     private Claims extractAllClaims(String token) {
-        return Jwts.parserBuilder()//It returns a JwtParserBuilder object that lets you configure the rules for parsing JWT tokens before actually parsing them
-                .setSigningKey(getKey())
+        return Jwts.parserBuilder()
                 .build()
-                .parseClaimsJws(token)//throw exeption if the token or signature is invalide
+                .parseClaimsJws(token)
                 .getBody();
     }
 
@@ -107,7 +105,7 @@ public class JWTService {
     public List<String> extractRoles(String token) {
         Claims claims = extractAllClaims(token);
         
-        @SuppressWarnings("unchecked")//Compiler warning: "Unchecked conversion from List to List<String>"
+        @SuppressWarnings("unchecked")
         List<String> roles = claims.get("roles", List.class);
         
         if (roles == null) {
