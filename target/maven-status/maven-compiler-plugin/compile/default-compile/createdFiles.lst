@@ -1,3 +1,4 @@
+com\example\demo\model\Task$Status.class
 com\example\demo\service\MyUserDetailsService.class
 com\example\demo\service\UserService.class
 com\example\demo\service\TaskService.class

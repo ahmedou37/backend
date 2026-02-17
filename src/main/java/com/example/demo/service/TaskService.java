@@ -17,6 +17,10 @@ import com.example.demo.repositry.UserRepositry;
 
 import lombok.extern.slf4j.Slf4j;
 
+import com.example.demo.model.Task.Status;
+
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @Slf4j
@@ -30,9 +34,12 @@ public class TaskService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
-    public List<Task> getTasks() {
-        log.info("hhhhhhhhhhhhhhhiiiiiiiiiiii");
-        return taskRepository.findAllByOrderByUpdatedAtDesc();
+    @Cacheable(value = "tasks")
+    public List<Task> getTasks(Pageable pageable,String title) {
+        if(title == null){
+            return taskRepository.findAll(pageable).getContent();
+        }
+        return taskRepository.findAllByTitle(title,pageable);
     }
 
     public Task getTask(int id) {
@@ -48,10 +55,10 @@ public class TaskService {
         return "Task deleted successfully";
     }
 
-    public List<Task> getTasksByStatus(String status) {
+    public List<Task> getTasksByStatus(Status status) {
         List<Task> Tasks = new ArrayList<>();
         for (Task task : taskRepository.findAll()) {
-            if (task.getStatus().equals(status)) {
+            if (task.getStatus().toString().equals(status)) {
                 Tasks.add(task);
             }
         }

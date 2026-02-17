@@ -3,7 +3,6 @@ package com.example.demo.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.demo.model.User.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.GeneratedValue;
@@ -14,6 +13,7 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import com.example.demo.authorization.enums.Role;
 
 @Data
 @AllArgsConstructor

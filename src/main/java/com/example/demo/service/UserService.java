@@ -13,6 +13,11 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,8 +28,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.Main;
+import com.example.demo.events.UserSignUp;
 import com.example.demo.mappers.UserMapper;
-import com.example.demo.model.AuthenticationToken;
+import com.example.demo.model.AuthToken;
 import com.example.demo.model.MyUserDetails;
 import com.example.demo.model.Notification;
 import com.example.demo.model.Task;
@@ -35,6 +41,8 @@ import com.example.demo.repositry.TaskRepository;
 import com.example.demo.repositry.UserRepositry;
 
 import jakarta.servlet.http.HttpServletRequest;
+
+import com.example.demo.model.Task.Status;
 
 
 
@@ -61,36 +69,48 @@ public class UserService {
     @Autowired
     UserMapper mapper;
 
+    @Autowired
+    ApplicationEventPublisher eventPublisher;
+
+    @Autowired
+    MyUserDetailsService myUserDetailsService;
+
     private static final Logger logger=LogManager.getLogger(Main.class);
 
     BCryptPasswordEncoder encoder= new BCryptPasswordEncoder(10);
 
-    
+    @Cacheable(value = "users")
     public List<UserDTO> getUsers() {
         return mapper.toDtoList(userRepositry.findAllByOrderByUpdatedAtDesc());
     }
 
+    @Cacheable(value = "usersById", key = "#id")
     public UserDTO getUserById(int id){
         return mapper.toDto(userRepositry.findById(id).orElse(null));
     }
-
+    
     public UserDTO getUserByName(String name){
         return mapper.toDto(userRepositry.findByName(name));
     }
 
-    public void addUser(User user) throws IOException{
+    @CacheEvict(value = "users", allEntries = true)
+    public AuthToken addUser(User user, HttpServletRequest request) throws IOException{
         //String imageName=saveImage(image);
         user.setPassword(encoder.encode(user.getPassword()));
-        // SimpleMailMessage mailMessage=new SimpleMailMessage();
-        // mailMessage.setTo(user.getEmail());
-        // mailMessage.setSubject("You Signed Up");
-        // mailMessage.setText("you signup succefly ! you can now login at any time");
-        // javaMailSender.send(mailMessage);
-        userRepositry.save(user);
+        if (verifyUserNameExist(user.getName())) {
+            userRepositry.save(user);
+            eventPublisher.publishEvent(new UserSignUp(mapper.toDto(user)));
+            return login(user, request);
+        } else {
+            throw new RuntimeException("Username already exists");
+        }
     }
 
+    @Caching(
+        put = @CachePut(value = "usersById", key = "#result.id"),  // Updates users cache
+        evict = @CacheEvict(value = "users", allEntries = true)  // Clears list cache
+    )
     public UserDTO updateUser(UserDTO userDTO) {
-
         User user = userRepositry.findById(userDTO.getId())
        .orElseThrow(() -> new RuntimeException("User not found"));
     
@@ -106,31 +126,16 @@ public class UserService {
         userRepositry.deleteById(id);
         return "user deleted!";
     }
-    
-    public AuthenticationToken verify(User user , HttpServletRequest request) {
-        Authentication authentication =authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(user.getName(), user.getPassword()));
-        //AuthenticationManager tries to authenticate using its providers.
-        
-        if (authentication.isAuthenticated()){
 
-            MyUserDetails userDetails = (MyUserDetails) authentication.getPrincipal();//After authentication , the principals become UserDetails of the user
-
-            return jwtService.generateToken(user.getName(), userDetails.getAuthorities(),request);
+    public boolean verifyUserNameExist(String name) {
+        if (userRepositry.findByName(name) != null) {
+            return false;
         }
-        
-        return new AuthenticationToken();
-
-    }
-
-    public boolean verifyUserName(String name) {
-        List<UserDTO> users= mapper.toDtoList(userRepositry.findAll());
-        List<String> usersNames= users.stream().map(u-> u.getName()).collect(Collectors.toList());
-        logger.info("usersNames : "+usersNames);
-        System.out.println("userNmas"+usersNames);
-        return !usersNames.contains(name);
+        return true;
     }
 
 
+    @Cacheable(value = "userTasks")
     public List<Task> getTasks(String name) {
         User user = userRepositry.findByName(name);
         if (user != null) {
@@ -163,7 +168,8 @@ public class UserService {
 
     }
 
-    public Task updateTaskStatus(Task task,String status){
+    @CachePut(value = "userTasks", key = "#task.user.name")
+    public Task updateTaskStatus(Task task,Status status){
         if(task!=null){
             task.setStatus(status);
             taskRepository.save(task);

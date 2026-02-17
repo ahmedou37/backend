@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.example.demo.authorization.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -38,6 +39,7 @@ public class User {
     private Role role = Role.USER;
     private String email;
     private String imageName;
+    private boolean locked = false;
 
     @JsonIgnore
     @OneToMany(mappedBy ="assignedUser",cascade = CascadeType.REMOVE)
@@ -52,10 +54,4 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-
-
-    public enum Role {
-        USER,
-        ADMIN
-    }
 }

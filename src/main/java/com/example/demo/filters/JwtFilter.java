@@ -11,6 +11,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
+import com.example.demo.model.MyUserDetails;
 import com.example.demo.service.JWTService;
 import com.example.demo.service.MyUserDetailsService;
 
@@ -41,10 +42,10 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = myUserDetailsService.loadUserByUsername(username);
+            MyUserDetails userDetails = (MyUserDetails) myUserDetailsService.loadUserByUsername(username);
             if (jwtService.validateToken(token, userDetails)) {
-                List<GrantedAuthority> authorities = jwtService.extractAuthorities(token);
-                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, authorities);
+                List<GrantedAuthority> authorities = jwtService.extractAuthorities(token);//here why not use userDetails.getAuthorities() instead of extracting from token again? 
+                UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());//authorities
                 authToken.setDetails(new WebAuthenticationDetailsSource()
                         .buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authToken);

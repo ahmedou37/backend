@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,9 +18,10 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import com.example.demo.model.AuthenticationToken;
+import com.example.demo.model.AuthToken;
 import com.example.demo.model.Notification;
 import com.example.demo.model.Task;
+import com.example.demo.model.Task.Status;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDTO;
 import com.example.demo.repositry.TaskRepository;
@@ -42,6 +44,7 @@ public class UserController {
 
 
     @GetMapping
+    @PreAuthorize("hasPermission('USER','READ') or hasRole('ADMIN')")
     public List<UserDTO> getUsers() {
         return userService.getUsers();
     }
@@ -54,9 +57,8 @@ public class UserController {
         return userService.getUserByName(name);
     } 
     @PostMapping
-    public User addUser(@RequestBody User user ) throws IOException{
-        userService.addUser(user);
-        return user;
+    public AuthToken addUser(@RequestBody User user , HttpServletRequest request) throws IOException{
+        return userService.addUser(user,request);
     }
    
     @PutMapping
@@ -69,24 +71,20 @@ public class UserController {
         return userService.deleteUser(id);
     }
     
-    @PostMapping("/login")
-    public AuthenticationToken login(@RequestBody User user , HttpServletRequest request){
-        return userService.verify(user ,request);
-    }
-
-    @GetMapping("/verify/{name}")
+    @GetMapping("/verifyUsernameExist/{name}")
     public boolean verifyUserName(@PathVariable String name) {
-        return userService.verifyUserName(name);
+        return userService.verifyUserNameExist(name);
     }
 
 
     @GetMapping("/tasks")
     public List<Task> getTasks(Authentication authentication) {
-         String name=authentication.getName();
+        String name=authentication.getName();
         return userService.getTasks(name);
     }
 
     @GetMapping("/tasks/{id}")
+    @PreAuthorize("@taskSecurity.canAccessTask(#id, authentication)")
     public Task getTask(@PathVariable int id, Authentication authentication) {
         String name = authentication.getName();
         return userService.getTask(name, id);
@@ -99,7 +97,7 @@ public class UserController {
     }
 
     @PostMapping("tasks/{taskId}")
-    public Task updateTaskStatus(@PathVariable int taskId ,Authentication authentication,@RequestParam String status){
+    public Task updateTaskStatus(@PathVariable int taskId ,Authentication authentication,@RequestParam Status status){
         Task task =userService.getTask(authentication.getName(), taskId);
         return userService.updateTaskStatus(task, status);
     }

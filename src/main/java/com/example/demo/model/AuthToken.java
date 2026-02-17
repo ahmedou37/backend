@@ -1,5 +1,8 @@
 package com.example.demo.model;
 
+import java.time.LocalDateTime;
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -7,11 +10,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class AuthenticationToken {
+public class AuthToken {
     String token  ;
     String headerType;
-    long tokenExp;
+    Date tokenExp;
     boolean isTokenExpired;
     String refreshToken;
-    long refreshTokenExp;    
 }
