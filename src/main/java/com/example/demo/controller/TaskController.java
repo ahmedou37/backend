@@ -4,6 +4,8 @@ package com.example.demo.controller;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.Task;
+import com.example.demo.model.Task.Status;
 import com.example.demo.service.TaskService;
 
 
@@ -26,8 +29,16 @@ public class TaskController {
     TaskService taskService;
 
     @GetMapping
-    public List<Task> getTasks() {
-        return taskService.getTasks();
+    public List<Task> getTasks(@RequestParam (required = false, defaultValue = "0") int page ,
+        @RequestParam(required = false, defaultValue = "10") int size ,
+        @RequestParam(required = false, defaultValue = "updatedAt") String sortBy,
+        @RequestParam(required = false, defaultValue = "desc") String sortDir,
+        @RequestParam(required = false ) String title
+        ){
+        if (sortDir != null && sortDir.equals("desc")){
+            return taskService.getTasks(PageRequest.of(page, size,Sort.by(sortBy).descending()),title);
+        }
+        return taskService.getTasks(PageRequest.of(page, size ,Sort.by(sortBy).ascending()),title);
     }
 
     @PostMapping
@@ -46,7 +57,7 @@ public class TaskController {
         return taskService.deleteTask(id);
     }
     @GetMapping("/filter")
-    public List<Task> getCompletedTasks(@RequestParam String status){
+    public List<Task> getCompletedTasks(@RequestParam Status status){
         return taskService.getTasksByStatus(status);
     }
     @PostMapping("{username}/{taskId}")

@@ -6,6 +6,7 @@ import java.util.List;
 
 import org.hibernate.annotations.UpdateTimestamp;
 
+import com.example.demo.authorization.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.persistence.CascadeType;
@@ -19,12 +20,19 @@ import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OrderBy;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+
 
 @Entity
 @Data
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "users")   
@@ -32,12 +40,16 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY) 
     private int id;
+    @NotBlank(message = "name is required")
     private String name;
+    @NotBlank(message = "password is required")
+    @Size(min = 4, message = "password must be at least 6 characters")
     private String password;
     @Enumerated(EnumType.STRING)
     private Role role = Role.USER;
     private String email;
     private String imageName;
+    private boolean locked = false;
 
     @JsonIgnore
     @OneToMany(mappedBy ="assignedUser",cascade = CascadeType.REMOVE)
@@ -52,10 +64,4 @@ public class User {
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-
-
-    public enum Role {
-        USER,
-        ADMIN
-    }
 }
