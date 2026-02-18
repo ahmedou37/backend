@@ -3,7 +3,6 @@ package com.example.demo.mappers;
 import java.util.List;
 
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 
 import com.example.demo.model.User;
 import com.example.demo.model.UserDTO;

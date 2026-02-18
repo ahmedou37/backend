@@ -6,6 +6,7 @@ import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -26,9 +27,10 @@ public class AuthProvider implements AuthenticationProvider {
     public Authentication authenticate(Authentication authentication) throws AuthenticationException {
         MyUserDetails userDetails = (MyUserDetails) userDetailsService.loadUserByUsername(authentication.getName());
         if (passwordEncoder.matches(authentication.getCredentials().toString(),userDetails.getPassword())){
+            SecurityContextHolder.getContext().setAuthentication(authentication);
             return new UsernamePasswordAuthenticationToken(userDetails, null , userDetails.getAuthorities());
         }  
-        throw new BadCredentialsException("Invalid username or password");      
+        throw new BadCredentialsException("invalid username or password");      
     }
 
     @Override

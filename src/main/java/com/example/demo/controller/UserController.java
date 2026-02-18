@@ -24,21 +24,16 @@ import com.example.demo.model.Task;
 import com.example.demo.model.Task.Status;
 import com.example.demo.model.User;
 import com.example.demo.model.UserDTO;
-import com.example.demo.repositry.TaskRepository;
-import com.example.demo.repositry.UserRepositry;
 import com.example.demo.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
 public class UserController {
     @Autowired
     UserService userService;
-    @Autowired
-    UserRepositry userRepository;
-    @Autowired
-    TaskRepository taskRepository;
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
@@ -57,12 +52,12 @@ public class UserController {
         return userService.getUserByName(name);
     } 
     @PostMapping
-    public AuthToken addUser(@RequestBody User user , HttpServletRequest request) throws IOException{
+    public AuthToken addUser(@Valid @RequestBody User user , HttpServletRequest request) throws IOException{
         return userService.addUser(user,request);
     }
    
     @PutMapping
-    public UserDTO updateUser(@RequestBody UserDTO user ) throws IOException{
+    public UserDTO updateUser(@Valid @RequestBody UserDTO user ) throws IOException{
         return userService.updateUser(user);
     }
 
@@ -91,7 +86,7 @@ public class UserController {
     }
 
     @GetMapping("/tasks/filter")
-    public List<Task> getTasksByStatus(@RequestParam String status, Authentication authentication) {//(requiered)
+    public List<Task> getTasksByStatus(@RequestParam Status status, Authentication authentication) {//(requiered)
         String name=authentication.getName();
         return userService.getTasksByStatus(name,status);
     }

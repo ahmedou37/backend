@@ -30,6 +30,20 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @EntityListeners(AuditingEntityListener.class) 
 public class Task {
+    public int getId() {
+        return id;
+    }
+    public String getTitle() {
+        return title;
+    }
+  
+    public Task(String title  ){
+        this.title=title;
+    }
+  
+    public void setId(int id) {
+        this.id = id;
+    }
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

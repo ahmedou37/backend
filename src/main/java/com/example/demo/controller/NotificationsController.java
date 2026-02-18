@@ -21,7 +21,9 @@ public class NotificationsController {
     @PostMapping("/send")
     public void sendNotification(@RequestBody String message) {
         System.out.println("New notification: " + message);
-        messagingTemplate.convertAndSend("/topic/notifications", message);
+        if(message!=null){
+            messagingTemplate.convertAndSend("/topic/notifications", message);
+        }
     }
 
     @Autowired

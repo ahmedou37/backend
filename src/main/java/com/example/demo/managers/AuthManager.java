@@ -1,9 +1,6 @@
 package com.example.demo.managers;
 
 import java.util.List;
-import com.example.demo.providers.AuthProvider;
-
-import jakarta.annotation.PostConstruct;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,6 +8,10 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.stereotype.Component;
+
+import com.example.demo.providers.AuthProvider;
+
+import jakarta.annotation.PostConstruct;
 
 @Component
 public class AuthManager implements AuthenticationManager {
@@ -23,7 +24,7 @@ public class AuthManager implements AuthenticationManager {
     
     @PostConstruct
     public void init() {
-        this.providers.add(this.authProvider); // ✅ Now both are injected
+        this.providers.add(this.authProvider); //Now both are injected
     }
 
     @Override

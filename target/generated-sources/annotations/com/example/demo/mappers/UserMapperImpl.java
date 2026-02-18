@@ -10,8 +10,8 @@ import org.springframework.stereotype.Component;
 
 @Generated(
     value = "org.mapstruct.ap.MappingProcessor",
-    date = "2026-02-17T00:24:04+0000",
-    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.45.0.v20260128-0750, environment: Java 21.0.9 (Eclipse Adoptium)"
+    date = "2026-02-18T07:24:06+0000",
+    comments = "version: 1.6.3, compiler: Eclipse JDT (IDE) 3.45.0.v20260128-0750, environment: Java 21.0.9 (Oracle Corporation)"
 )
 @Component
 public class UserMapperImpl implements UserMapper {
@@ -24,11 +24,11 @@ public class UserMapperImpl implements UserMapper {
 
         UserDTO userDTO = new UserDTO();
 
+        userDTO.setEmail( user.getEmail() );
         userDTO.setId( user.getId() );
+        userDTO.setImageName( user.getImageName() );
         userDTO.setName( user.getName() );
         userDTO.setRole( user.getRole() );
-        userDTO.setEmail( user.getEmail() );
-        userDTO.setImageName( user.getImageName() );
         List<Task> list = user.getTasks();
         if ( list != null ) {
             userDTO.setTasks( new ArrayList<Task>( list ) );
@@ -45,11 +45,11 @@ public class UserMapperImpl implements UserMapper {
 
         User user = new User();
 
+        user.setEmail( userDTO.getEmail() );
         user.setId( userDTO.getId() );
+        user.setImageName( userDTO.getImageName() );
         user.setName( userDTO.getName() );
         user.setRole( userDTO.getRole() );
-        user.setEmail( userDTO.getEmail() );
-        user.setImageName( userDTO.getImageName() );
         List<Task> list = userDTO.getTasks();
         if ( list != null ) {
             user.setTasks( new ArrayList<Task>( list ) );

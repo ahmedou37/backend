@@ -2,7 +2,6 @@ package com.example.demo.service;
 
 import java.security.Key;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -53,7 +52,6 @@ public class JWTService {
 
         long issuedAtTime = System.currentTimeMillis();
         long expirationTime = issuedAtTime + 1000 * 60 * 30 ;
-        long tokenExp = expirationTime - issuedAtTime;
 
         boolean isTokenExpired = System.currentTimeMillis() > expirationTime;
 
@@ -124,6 +122,18 @@ public class JWTService {
             refreshTokenRepo.save(token);
         }
         return "refresh tokens revoked successfully";
+    }
+
+    public String unrevokeUserRefreshTokens(String username) {
+        List<RefreshToken> refreshTokens = refreshTokenRepo.findAllByUsername(username);
+        if (refreshTokens == null || refreshTokens.isEmpty()) {
+            return "no refresh tokens found for the user";
+        }
+        for (RefreshToken token : refreshTokens) {
+            token.setRevoked(false);
+            refreshTokenRepo.save(token);
+        }
+        return "refresh tokens unrevoked successfully";
     }
 
     public String deleteRefreshToken(String username) {
